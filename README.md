@@ -83,8 +83,6 @@
 스프링 컨테이너 : 빈의 생성, 소멸등 빈들을 관리하는 도구
 - `ApplicationContext` 를 이용한 모든 `Bean` 확인
   ```Java
-  @RunWith(SpringRunner.class)
-  @SpringBootTest
   public class BootApplicationTests {
 
     @Autowired
@@ -104,8 +102,6 @@
   2. `context.getBeanDefinitionNames()` : `Bean` 으로 등록되어 있는 모든 이름을 가져온다.
 - `ApplicationContext` 를 이용하여 특정 `Bean` 조회 및 `null` 확인
   ```Java
-  @RunWith(SpringRunner.class)
-  @SpringBootTest
   public class BootApplicationTests {
 
     @Autowired
@@ -131,3 +127,87 @@
   ```
   1. `context.getBean()` 의 매개변수 >>  `Bean` 의 이름 or `Bean` 으로 등록 된 클래스
   2. `Bean` 은 `IoC Container` 에 의하여 객체가 생성 되었기 때문에 `null` 이 아니다.
+
+## 3. 의존성 주입(Dependency Injection) 방법
+- 생성자
+  ```Java
+  @Controller
+  public class StudentAController {
+
+    private final StudentARepository studentARepository;
+
+    public StudentAController(StudentARepository studentARepository){
+        this.studentARepository = studentARepository;
+    }
+  }
+  ```
+  ```Java
+
+  public class StudentControllerTest {
+
+    @Autowired
+    StudentAController studentAController;
+
+    @Test
+    public void dIConstructor(){
+        assertThat(studentAController).isNotNull();
+    }
+  }
+  ```
+  ```Java
+  >>> 테스트 성공
+  ```
+- 필드
+  ```Java
+  @Controller
+  public class StudentBController {
+
+    @Autowired
+    StudentBRepository studentBRepository;
+  }
+  ```
+  ```Java
+  public class StudentControllerTest {
+
+    @Autowired
+    StudentBController studentBController;
+
+    @Test
+    public void dIField(){
+        assertThat(studentBController).isNotNull();
+    }
+  }
+  ```
+  ```Java
+  >>> 테스트 성공
+  ```
+- 세터(Setter)
+  ```Java
+  @Controller
+  public class StudentCController {
+
+    private StudentCRepository studentCRepository;
+
+    @Autowired
+    public void setStudentCRepository(StudentCRepository studentCRepository) {
+        this.studentCRepository = studentCRepository;
+    }
+  }
+  ```
+  ```Java
+  public class StudentControllerTest {
+
+    @Autowired
+    StudentCController studentCController;
+
+    @Test
+    public void dISetter(){
+        assertThat(studentCController).isNotNull();
+    }
+  }
+  ```
+  ```Java
+  >>> 테스트 성공
+  ```
+
+## 4. 빈(Bean) 등록 방법
