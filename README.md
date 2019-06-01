@@ -487,7 +487,7 @@
 
 </details>
 
-## 5. 의존성 주입(Dependency Injection) - @Autowired
+## 5. @Autowired
 
 <details markdown="1">
 
@@ -701,5 +701,97 @@
 
     1. `List` 자료형을 이용하여 해당하는 타입의 모든 `Bean` 을 받아온다.
     2. 타입이 똑같은 `Bean`이 모두 출력된다.
+
+</details>
+
+## 6. Scope
+
+<details markdown="1">
+
+- 모든 `Bean` 은 `Scope` 가 존재한다.
+  1. `Scope` 에 관련된 설정을 하지 않으면 기본적으로 `싱글톤` 으로 생성된다.
+  2. `싱글톤` : 해당 `Bean` 의 인스턴스가 1개 존재하는 형태
+      ```Java
+      @Component
+      public class Single {
+      }
+      ```
+      ```Java
+      @SpringBootTest
+      public class SingleTest {
+        @Autowired
+        Single single;
+
+        @Autowired
+        Single single2;
+
+        @Test
+        public void 싱글톤_테스트(){
+
+            System.out.println(single); // Single@3eed0f5
+            System.out.println(single2); // Single@3eed0f5
+
+            assertThat(single).isEqualTo(single2);
+        }
+      }
+      ```
+- `프로토타입`
+  1. 새로운 인스턴스를 생성하여 사용하는 형태
+      ```Java
+      @Component @Scope("prototype")
+      public class Proto {
+      }
+      ```
+      ```Java
+      public class SingleTest {
+
+        @Autowired
+        Proto proto;
+
+        @Autowired
+        Proto proto2;
+
+        @Test
+        public void 프로토_테스트(){
+            System.out.println(proto); // Proto@2dbd803f
+            System.out.println(proto2); // Proto@3e48e859
+
+            assertThat(proto).isNotEqualTo(proto2);
+        }
+      }
+      ```
+  2. `프로토타입` 의 `Bean` 이 `싱글톤` 을 참조하는 경우 문제가 없다.
+- `싱글톤` 이 `프로토타입` 을 참조하는 경우
+  1. `프로토타입` 의 `Bean` 이 인스턴스를 생성하지 못하는 상황이 발생
+      ```Java
+      @Component
+      public class Single {
+          @Autowired
+          Proto proto;
+      }
+      ```
+      ```Java
+      @Test
+      public void 싱글톤이_프로토_참조(){
+          System.out.println(single.getProto()); // Proto@3a022576
+          System.out.println(single.getProto()); // Proto@3a022576
+
+          assertThat(single.getProto()).isEqualTo(single.getProto());
+      }
+      ```
+  2. 해결방법, `proxyMode` 속성 사용
+     ```Java
+     @Component @Scope(value = "prototype", proxyMode = ScopedProxyMode.TARGET_CLASS)
+     public class Proto {
+     }
+     ```
+     ```Java
+     @Test
+     public void 싱글톤이_프로토_참조(){
+        System.out.println(single.getProto()); // Proto@78de58ea
+        System.out.println(single.getProto()); // Proto@3a022576
+     }
+     ```
+
 
 </details>
