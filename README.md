@@ -795,3 +795,45 @@
 
 
 </details>
+
+## 7. Validation
+
+<details markdown="1">
+
+1. `Validator` 사용
+    1. [Interface Validator](https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/validation/Validator.html) : 애플리케이션 고유의 객체에 대한 유효성 검사기
+    2. `supports`, `validate` 두 가지의 메소드를 구현하여야 한다.
+        - `supprots` : 검증하여야 하는 인스턴스의 클래스가 `Validator` 가 검증할 수 있는지 판단하는 메소드
+        - `Event` 클래스의 적합성 검사
+          ```java
+          @Override
+          public boolean supports(Class<?> clazz) {
+              return Event.class.equals(clazz);
+          }
+          ```
+        - `validate` : 검증 가능한 클래스에 대한 유효성 검사가 실질적으로 이루어지는 메소드
+        - `Event` 클래스의 `title` 필드 `not null` 검사
+          ```java
+          @Override
+          public void validate(Object target, Errors errors) {
+              ValidationUtils.rejectIfEmptyOrWhitespace(errors, "title", "Empty", "타이틀이 비어있으면 안됩니다.");
+          }
+          ```
+2. 어노테이션 사용
+    1. `LocalValidatorFactoryBean` 클래스를 의존성 주입을 받아 사용
+        ```java
+        @Autowired
+        private Validator validator;
+        ```
+    2. 유효성 검증을 하고자 하는 필드에 어노테이션을 사용한다.
+        ```java
+        public class Event {
+          private Long idx;
+
+          @NotEmpty
+          private String title;
+        }
+        ```
+
+
+</details>
